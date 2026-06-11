@@ -984,7 +984,10 @@ public class ReferenceTrimmerAnalyzer : DiagnosticAnalyzer
                     }
 
                     packageAssemblies.Add(declaredReference.AssemblyPath);
-                    packageSeverities.Add(declaredReference.Spec, ToDiagnosticSeverity(declaredReference.Severity));
+                    if (!packageSeverities.ContainsKey(declaredReference.Spec))
+                    {
+                        packageSeverities.Add(declaredReference.Spec, ToDiagnosticSeverity(declaredReference.Severity));
+                    }
                     break;
                 }
             }
@@ -1209,7 +1212,10 @@ public class ReferenceTrimmerAnalyzer : DiagnosticAnalyzer
 
             string assemblyPath = sourceText.ToString(TextSpan.FromBounds(start, firstTab));
             string spec = sourceText.ToString(TextSpan.FromBounds(secondTab + 1, thirdTab));
-            Enum.TryParse<ReferenceTrimmerSeverity>(sourceText.ToString(TextSpan.FromBounds(thirdTab + 1, end)), out var severity);
+            if (!Enum.TryParse<ReferenceTrimmerSeverity>(sourceText.ToString(TextSpan.FromBounds(thirdTab + 1, end)), out var severity))
+            {
+                continue;
+            }
 
             // Determine kind without allocating a string. The three possible values are
             // "Reference" (len 9), "ProjectReference" (len 16), "PackageReference" (len 16).
